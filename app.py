@@ -1,11 +1,12 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file, abort, flash
 from datetime import date, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
-import db, io, csv, os
+import db, io, csv
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
-app.secret_key = "replace_this_with_a_real_secret"  # change for production
+app.secret_key = os.environ.get("SECRET_KEY", "devkey")
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -37,7 +38,6 @@ def run_recurring_jobs_for_user(user_id):
         if r.get("interval") != "monthly":
             continue
         last_run = r.get("last_run")
-        # if never run or last_run before this month -> add
         add_flag = False
         if not last_run:
             add_flag = True
@@ -94,9 +94,7 @@ def logout():
 @app.route("/", methods=["GET"])
 @login_required
 def index():
-    # run recurring items for this user (simple monthly logic)
     run_recurring_jobs_for_user(current_user.id)
-
     rows = db.fetch_expenses(user_id=current_user.id)
     today = date.today()
     budgets = db.get_budgets(current_user.id, today.year, today.month)
@@ -140,7 +138,10 @@ def delete(expense_id):
 @login_required
 def set_budget():
     category = request.form.get("category")
-    amount = float(request.form.get("amount", 0))
+    try:
+        amount = float(request.form.get("amount", 0))
+    except:
+        amount = 0.0
     year = int(request.form.get("year"))
     month = int(request.form.get("month"))
     db.set_budget(current_user.id, category, amount, year, month)
@@ -152,7 +153,10 @@ def set_budget():
 def add_recurring():
     start_date = request.form.get("start_date", date.today().isoformat())
     category = request.form.get("category", "Other")
-    amount = float(request.form.get("amount", 0))
+    try:
+        amount = float(request.form.get("amount", 0))
+    except:
+        amount = 0.0
     note = request.form.get("note", "")
     interval = request.form.get("interval", "monthly")
     db.add_recurring(current_user.id, start_date, category, amount, note, interval)
@@ -194,4 +198,5 @@ def download_db():
     return send_file(db_path, mimetype="application/octet-stream", download_name="expenses.db", as_attachment=True)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # run with debug disabled for production-like behavior
+    app.run(debug=False, host="0.0.0.0", port=5000)
