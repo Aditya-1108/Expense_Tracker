@@ -1,0 +1,48 @@
+/* ⭐ FULL PAGE BACKGROUND IMAGE ⭐ */
+body.bg-image {
+  background-image: url('https://images.unsplash.com/photo-1607082348824-0d6fcd26b379?auto=format&fit=crop&w=1650&q=80');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* Dark overlay for smooth effect */
+  background-color: rgba(0, 0, 0, 0.55);
+  background-blend-mode: darken;
+
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Card Styling */
+.card {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+}
+
+.table-card-body {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.table-dark tbody td {
+  color: #fff;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+  border-radius: 8px;
+  backdrop-filter: blur(3px);
+}
+
+/* Titles */
+h5, h4, h3, .text-white {
+  color: #fff !important;
+}
+
+/* Navbar */
+.navbar-brand {
+  font-size: 1.4rem;
+}
